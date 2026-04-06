@@ -44,7 +44,7 @@ def execute_bybit_order(api_key, api_secret, ticker, direction):
         })
         
         # ⚠️ MODE TESTNET ACTIVÉ : Pour ne pas utiliser d'argent réel tout de suite !
-        exchange.set_sandbox_mode(True)
+        # exchange.set_sandbox_mode(True)
 
         symbol = ticker # ex: 'BTC/USDT'
         order_type = 'market' # Ordre au prix du marché direct
