@@ -3,188 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Trading | AI Dashboard</title>
+    <title>Inscription | Nexa Trading Bot</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { background-color: #0b0e11; color: #eaecef; }
-        .card { background-color: #1e2329; border: 1px solid #30363d; }
-        .gradient-text { background: linear-gradient(90deg, #f0b90b, #f8d33a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .status-pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .login-card { background-color: #1e2329; border: 1px solid #30363d; }
     </style>
 </head>
-<body class="font-sans antialiased">
-    <nav class="border-b border-gray-800 p-4 flex justify-between items-center px-8">
-        <h1 class="text-2xl font-bold gradient-text"><i class="fa-solid fa-robot mr-2"></i>NEXA AI BOT</h1>
-        <div class="flex items-center gap-6">
-            <div id="status" class="flex items-center text-sm text-green-500">
-                <span class="relative flex h-3 w-3 mr-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                </span>
-                Moteur de trading actif
-            </div>
-            <button onclick="logout()" class="text-gray-400 hover:text-white text-sm"><i class="fa-solid fa-sign-out-alt"></i> Déconnexion</button>
-        </div>
-    </nav>
+<body class="font-sans antialiased flex items-center justify-center h-screen px-4">
 
-    <main class="p-8 max-w-7xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div class="card p-4 rounded-lg">
-                <span class="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Broker Status</span>
-                <div class="flex items-center mt-1">
-                    <div class="h-2 w-2 rounded-full bg-green-500 mr-2"></div>
-                    <span id="acc-status" class="font-bold text-sm">Connecté</span>
-                </div>
-            </div>
-            <div class="card p-4 rounded-lg">
-                <span class="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Solde Total</span>
-                <h4 id="acc-balance" class="text-xl font-bold mt-1 text-white">$0.00</h4>
-            </div>
-            <div class="card p-4 rounded-lg">
-                <span class="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Equity (Live)</span>
-                <h4 id="acc-equity" class="text-xl font-bold mt-1 text-yellow-500">$0.00</h4>
-            </div>
-            <div class="card p-4 rounded-lg">
-                <span class="text-gray-500 text-[10px] uppercase font-bold tracking-wider">PnL Journalier</span>
-                <h4 id="acc-pnl" class="text-xl font-bold mt-1">+$0.00</h4>
-            </div>
+    <div class="login-card p-8 rounded-xl w-full max-w-md shadow-2xl">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-yellow-500 mb-2">
+                <i class="fa-solid fa-user-plus mr-2"></i>NEXA AI
+            </h1>
+            <p class="text-gray-400 text-sm">Créez votre compte de trading automatisé</p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-1">
-                <h3 class="text-lg font-bold mb-4 flex items-center">
-                    <i class="fa-solid fa-layer-group mr-2 text-yellow-500"></i> Positions Actives
-                </h3>
-                <div id="active-positions" class="space-y-3">
-                    <p class="text-gray-500 text-sm italic">Aucune position ouverte...</p>
+        <form id="register-form" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Nom Complet</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500"><i class="fa-solid fa-user"></i></span>
+                    <input type="text" id="full_name" class="w-full bg-[#0b0e11] border border-gray-700 p-3 pl-10 rounded-lg text-white focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none transition" placeholder="Mohamed Ashraf" required>
                 </div>
             </div>
 
-            <div class="lg:col-span-2">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold flex items-center">
-                        <i class="fa-solid fa-bolt mr-2 text-yellow-500"></i> Flux de Signaux Hybrides
-                    </h3>
-                    <span class="text-[10px] text-gray-500 uppercase">Auto-refresh: 10s</span>
-                </div>
-                
-                <div class="card rounded-xl overflow-hidden">
-                    <table class="w-full text-left">
-                        <thead class="bg-black/20 text-gray-400 text-[10px] uppercase tracking-widest">
-                            <tr>
-                                <th class="p-4">Marché</th>
-                                <th class="p-4">Action</th>
-                                <th class="p-4">Prix</th>
-                                <th class="p-4">Confiance</th>
-                                <th class="p-4">Time</th>
-                            </tr>
-                        </thead>
-                        <tbody id="trades-body" class="divide-y divide-gray-800">
-                            </tbody>
-                    </table>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Adresse Email</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500"><i class="fa-solid fa-envelope"></i></span>
+                    <input type="email" id="email" class="w-full bg-[#0b0e11] border border-gray-700 p-3 pl-10 rounded-lg text-white focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none transition" placeholder="nom@exemple.com" required>
                 </div>
             </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Mot de passe</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500"><i class="fa-solid fa-lock"></i></span>
+                    <input type="password" id="password" class="w-full bg-[#0b0e11] border border-gray-700 p-3 pl-10 rounded-lg text-white focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none transition" placeholder="••••••••" required>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-yellow-500 text-black font-black py-3 rounded-lg hover:bg-yellow-400 transform active:scale-95 transition-all duration-200 mt-2">
+                CRÉER MON COMPTE
+            </button>
+        </form>
+
+        <div class="text-center mt-6">
+            <p class="text-gray-400 text-sm">
+                Déjà un compte ? 
+                <a href="/login" class="text-yellow-500 font-bold hover:underline">Se connecter</a>
+            </p>
         </div>
-    </main>
+
+        <div id="msg-box" class="mt-4 p-3 rounded-lg hidden text-center font-bold text-xs">
+            <p id="msg"></p>
+        </div>
+    </div>
 
     <script>
-        // --- SÉCURITÉ : Vérification du Token ---
-        const token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = '/login';
-        }
+        document.getElementById('register-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const payload = {
+                full_name: document.getElementById('full_name').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
 
-        function logout() {
-            localStorage.removeItem('token');
-            window.location.href = '/login';
-        }
+            const msgBox = document.getElementById('msg-box');
+            const msg = document.getElementById('msg');
+            msgBox.classList.remove('hidden');
 
-        // --- DATA : Récupération des infos du compte ---
-        async function fetchAccount() {
             try {
-                const response = await fetch('/account/info');
-                const data = await response.json();
+                const res = await fetch('/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
                 
-                document.getElementById('acc-balance').innerText = `$${data.balance.toLocaleString()}`;
-                document.getElementById('acc-equity').innerText = `$${data.equity.toLocaleString()}`;
-                
-                const pnlEl = document.getElementById('acc-pnl');
-                pnlEl.innerText = `${data.daily_pnl >= 0 ? '+' : ''}$${data.daily_pnl.toFixed(2)}`;
-                pnlEl.className = `text-xl font-bold mt-1 ${data.daily_pnl >= 0 ? 'text-green-500' : 'text-red-500'}`;
+                const data = await res.json();
 
-                const posContainer = document.getElementById('active-positions');
-                posContainer.innerHTML = '';
-                
-                if (data.active_positions.length === 0) {
-                    posContainer.innerHTML = '<p class="text-gray-500 text-sm italic">Aucune position...</p>';
+                if (res.ok) {
+                    msgBox.className = "mt-4 p-3 bg-green-500/10 border border-green-500/50 rounded-lg text-center font-bold text-xs text-green-500";
+                    msg.innerText = "Inscription réussie ! Redirection...";
+                    setTimeout(() => window.location.href = '/login', 2000);
+                } else {
+                    msgBox.className = "mt-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-center font-bold text-xs text-red-500";
+                    msg.innerText = data.detail || "Erreur lors de l'inscription";
                 }
-
-                data.active_positions.forEach(pos => {
-                    posContainer.innerHTML += `
-                        <div class="card p-4 rounded-lg border-l-4 ${pos.pnl >= 0 ? 'border-green-500' : 'border-red-500'}">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <span class="font-bold text-white">${pos.ticker}</span>
-                                    <span class="text-[10px] block text-gray-500 uppercase">${pos.direction}</span>
-                                </div>
-                                <span class="${pos.pnl >= 0 ? 'text-green-400' : 'text-red-400'} font-bold">
-                                    ${pos.pnl >= 0 ? '+' : ''}${pos.pnl.toFixed(2)}
-                                </span>
-                            </div>
-                            <div class="mt-2 text-[10px] text-gray-500">ENTRÉE: ${pos.entry}</div>
-                        </div>
-                    `;
-                });
-            } catch (e) { console.error("Erreur Compte:", e); }
-        }
-
-        // --- DATA : Récupération des signaux ---
-        async function fetchTrades() {
-            try {
-                const response = await fetch('/trades/history');
-                const trades = await response.json();
-                const tbody = document.getElementById('trades-body');
-                tbody.innerHTML = '';
-
-                trades.forEach(trade => {
-                    const isBuy = trade.direction === 'ACHAT';
-                    const time = new Date(trade.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-white/5 transition-colors">
-                            <td class="p-4 font-bold text-white">${trade.ticker}</td>
-                            <td class="p-4">
-                                <span class="${isBuy ? 'text-green-500 bg-green-500/10' : 'text-red-500 bg-red-500/10'} text-[10px] font-black px-2 py-1 rounded border border-current">
-                                    ${trade.direction}
-                                </span>
-                            </td>
-                            <td class="p-4 font-mono text-gray-400">$${trade.price}</td>
-                            <td class="p-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="flex-1 bg-gray-800 rounded-full h-1 max-w-[60px]">
-                                        <div class="bg-yellow-500 h-1 rounded-full" style="width: ${trade.confidence}%"></div>
-                                    </div>
-                                    <span class="text-[10px] text-gray-500">${trade.confidence.toFixed(1)}%</span>
-                                </div>
-                            </td>
-                            <td class="p-4 text-gray-600 text-xs">${time}</td>
-                        </tr>
-                    `;
-                });
-            } catch (e) { console.error("Erreur Signaux:", e); }
-        }
-
-        // Initialisation
-        fetchAccount();
-        fetchTrades();
-        
-        // Rafraîchissement automatique
-        setInterval(() => {
-            fetchAccount();
-            fetchTrades();
-        }, 10000);
+            } catch(err) {
+                msgBox.className = "mt-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-center font-bold text-xs text-red-500";
+                msg.innerText = "Serveur injoignable.";
+            }
+        };
     </script>
 </body>
 </html>
