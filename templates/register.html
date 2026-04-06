@@ -17,7 +17,7 @@
     <div class="card p-10 rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden">
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent opacity-50"></div>
 
-        <div class="text-center mb-10">
+        <div class="text-center mb-8">
             <h1 class="text-4xl font-bold gradient-text mb-3">
                 <i class="fa-solid fa-user-shield mr-2"></i>NEXA AI
             </h1>
@@ -25,15 +25,18 @@
         </div>
 
         <form id="register-form" class="space-y-5">
-            <div>
-                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Nom Complet</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500">
-                        <i class="fa-solid fa-user text-sm"></i>
-                    </span>
-                    <input type="text" id="full_name" 
-                        class="w-full bg-[#0b0e11] border border-gray-700 py-3 pl-11 pr-4 rounded-lg text-white focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none transition-all duration-200" 
-                        placeholder="John Doe" required>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Prénom</label>
+                    <input type="text" id="prenom" 
+                        class="w-full bg-[#0b0e11] border border-gray-700 py-3 px-4 rounded-lg text-white focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none transition-all duration-200" 
+                        placeholder="Mohamed" required>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Nom</label>
+                    <input type="text" id="nom" 
+                        class="w-full bg-[#0b0e11] border border-gray-700 py-3 px-4 rounded-lg text-white focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none transition-all duration-200" 
+                        placeholder="Ashraf" required>
                 </div>
             </div>
 
@@ -82,8 +85,11 @@
     <script>
         document.getElementById('register-form').onsubmit = async (e) => {
             e.preventDefault();
+            
+            // Le payload correspond exactement au UserCreate Pydantic de main.py
             const payload = {
-                full_name: document.getElementById('full_name').value,
+                prenom: document.getElementById('prenom').value,
+                nom: document.getElementById('nom').value,
                 email: document.getElementById('email').value,
                 password: document.getElementById('password').value
             };

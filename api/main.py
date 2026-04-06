@@ -23,7 +23,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
-    full_name: str
+    nom: str
+    prenom: str
 
 class Token(BaseModel):
     access_token: str
@@ -84,10 +85,12 @@ def register(user: UserCreate):
         raise HTTPException(status_code=400, detail="Cet email est déjà enregistré.")
     
     hashed = hash_password(user.password)
+    full_name = f"{user.prenom} {user.nom}"
+    
     try:
         cur.execute(
             "INSERT INTO users (email, hashed_password, full_name) VALUES (%s, %s, %s)",
-            (user.email, hashed, user.full_name)
+            (user.email, hashed, full_name)
         )
         conn.commit()
         return {"message": "Compte créé avec succès."}
@@ -136,38 +139,35 @@ def add_account(data: BrokerAccountSchema, current_user: dict = Depends(get_curr
     finally:
         conn.close()
 
-@app.get("/trades/history")
-def get_trades_history():
-    """Récupère les signaux générés par l'IA."""
+@app.get("/account/info")
+def get_account_info(current_user: dict = Depends(get_current_user)):
+    """Vérifie si l'utilisateur a une API, sinon renvoie un statut bloquant."""
     conn = get_db_connection()
     cur = conn.cursor()
-    try:
-        cur.execute("""
-            SELECT ticker, direction, entry_price, confidence, timestamp 
-            FROM trades_history 
-            ORDER BY timestamp DESC LIMIT 20
-        """)
-        trades = cur.fetchall()
-        return [
-            {"ticker": t[0], "direction": t[1], "price": float(t[2]), "confidence": float(t[3]), "time": t[4]} 
-            for t in trades
-        ]
-    finally:
-        conn.close()
+    
+    # Vérifie si l'utilisateur a configuré au moins un compte broker
+    cur.execute("SELECT COUNT(*) FROM broker_accounts WHERE user_id = %s", (current_user["id"],))
+    count_result = cur.fetchone()
+    has_api = count_result[0] > 0 if count_result else False
+    conn.close()
 
-@app.get("/account/info")
-def get_account_info():
-    """Simule la récupération du PnL et des positions ouvertes."""
+    if not has_api:
+        return {"api_configured": False}
+
+    # Données réelles à 0 (l'utilisateur vient de lier son compte, le bot n'a pas encore tradé)
     return {
-        "status": "Connecté",
-        "balance": 10452.30,
-        "equity": 10497.15,
-        "daily_pnl": 142.85,
-        "active_positions": [
-            {"ticker": "BTCUSD", "direction": "ACHAT", "pnl": 45.20, "entry": 69455.77},
-            {"ticker": "SOLUSD", "direction": "VENTE", "pnl": -12.40, "entry": 82.51}
-        ]
+        "api_configured": True,
+        "balance": 0.00,
+        "equity": 0.00,
+        "daily_pnl": 0.00,
+        "active_positions": []
     }
+
+@app.get("/trades/history")
+def get_trades_history(current_user: dict = Depends(get_current_user)):
+    """Récupère l'historique des trades. Vide pour l'instant."""
+    # Tant que le bot n'a pas enregistré de trades liés à cet utilisateur, on renvoie vide.
+    return []
 
 if __name__ == "__main__":
     import uvicorn
