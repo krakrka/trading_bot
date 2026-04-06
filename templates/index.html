@@ -10,10 +10,15 @@
         body { background-color: #0b0e11; color: #eaecef; }
         .card { background-color: #1e2329; border: 1px solid #30363d; }
         .gradient-text { background: linear-gradient(90deg, #f0b90b, #f8d33a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        /* Scrollbar personnalisée pour le tableau */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0e11; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
     </style>
 </head>
 <body class="font-sans antialiased">
-    <nav class="border-b border-gray-800 p-4 flex justify-between items-center px-8">
+    <nav class="border-b border-gray-800 p-4 flex justify-between items-center px-8 bg-[#1e2329]/50 backdrop-blur-md sticky top-0 z-50">
         <h1 class="text-2xl font-bold gradient-text"><i class="fa-solid fa-robot mr-2"></i>NEXA AI BOT</h1>
         <div class="flex items-center gap-6">
             <div id="status" class="flex items-center text-sm text-green-500">
@@ -21,32 +26,34 @@
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                 </span>
-                SaaS Actif
+                En ligne
             </div>
-            <button onclick="logout()" class="text-gray-400 hover:text-white text-sm transition"><i class="fa-solid fa-sign-out-alt"></i> Déconnexion</button>
+            <button onclick="logout()" class="text-gray-400 hover:text-white text-sm transition font-bold">
+                <i class="fa-solid fa-sign-out-alt"></i> Déconnexion
+            </button>
         </div>
     </nav>
 
     <main class="p-8 max-w-7xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div class="card p-4 rounded-lg">
-                <span class="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Connexion Serveur</span>
-                <div class="flex items-center mt-1">
-                    <div class="h-2 w-2 rounded-full bg-green-500 mr-2"></div>
-                    <span id="acc-status" class="font-bold text-sm">En ligne</span>
+            <div class="card p-5 rounded-xl border-t-2 border-t-gray-700">
+                <span class="text-gray-500 text-[10px] uppercase font-bold tracking-widest">Connexion API</span>
+                <div class="flex items-center mt-2">
+                    <div id="api-status-dot" class="h-2 w-2 rounded-full bg-gray-500 mr-2"></div>
+                    <span id="api-status-text" class="font-bold text-sm text-gray-400">Vérification...</span>
                 </div>
             </div>
-            <div class="card p-4 rounded-lg">
-                <span class="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Solde Total</span>
-                <h4 id="acc-balance" class="text-xl font-bold mt-1 text-white">...</h4>
+            <div class="card p-5 rounded-xl border-t-2 border-t-yellow-500/50">
+                <span class="text-gray-500 text-[10px] uppercase font-bold tracking-widest">Solde Total</span>
+                <h4 id="acc-balance" class="text-2xl font-bold mt-1 text-white">---</h4>
             </div>
-            <div class="card p-4 rounded-lg">
-                <span class="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Equity (Live)</span>
-                <h4 id="acc-equity" class="text-xl font-bold mt-1 text-yellow-500">...</h4>
+            <div class="card p-5 rounded-xl border-t-2 border-t-yellow-500/50">
+                <span class="text-gray-500 text-[10px] uppercase font-bold tracking-widest">Équité (Live)</span>
+                <h4 id="acc-equity" class="text-2xl font-bold mt-1 text-yellow-500">---</h4>
             </div>
-            <div class="card p-4 rounded-lg">
-                <span class="text-gray-500 text-[10px] uppercase font-bold tracking-wider">PnL Journalier</span>
-                <h4 id="acc-pnl" class="text-xl font-bold mt-1">...</h4>
+            <div class="card p-5 rounded-xl border-t-2 border-t-yellow-500/50">
+                <span class="text-gray-500 text-[10px] uppercase font-bold tracking-widest">PnL Journalier</span>
+                <h4 id="acc-pnl" class="text-2xl font-bold mt-1">---</h4>
             </div>
         </div>
 
@@ -57,25 +64,31 @@
                         <i class="fa-solid fa-layer-group mr-2 text-yellow-500"></i> Positions Actives
                     </h3>
                     <div id="active-positions" class="space-y-3">
-                        <p class="text-gray-500 text-sm italic">Chargement...</p>
+                        <div class="card p-6 rounded-xl text-center">
+                            <i class="fa-solid fa-spinner fa-spin text-gray-600 text-2xl mb-2"></i>
+                            <p class="text-gray-500 text-xs uppercase tracking-widest">Chargement des données...</p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="card p-6 rounded-xl">
-                    <h3 class="text-md font-bold mb-4 text-yellow-500"><i class="fa-solid fa-link mr-2"></i> Lier un Broker</h3>
+                <div class="card p-6 rounded-xl shadow-lg relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-yellow-500/10 rounded-bl-full"></div>
+                    <h3 class="text-md font-bold mb-4 text-yellow-500"><i class="fa-solid fa-link mr-2"></i> Connecter un Broker</h3>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-4">Requis pour l'exécution automatique</p>
+                    
                     <div class="space-y-3">
-                        <select id="new-broker" class="w-full bg-[#0b0e11] text-white p-2 text-sm rounded outline-none border border-gray-700 focus:border-yellow-500">
+                        <select id="new-broker" class="w-full bg-[#0b0e11] text-white p-3 text-sm rounded-lg outline-none border border-gray-700 focus:border-yellow-500 transition-colors">
                             <option value="BYBIT_DEMO">Bybit (Demo / Testnet)</option>
                             <option value="BYBIT_LIVE">Bybit (Live)</option>
                             <option value="MT5_DEMO">MetaTrader 5</option>
                         </select>
-                        <input type="text" id="new-key" placeholder="API Key" class="w-full bg-[#0b0e11] text-white p-2 text-sm rounded border border-gray-700 focus:border-yellow-500 outline-none">
-                        <input type="password" id="new-secret" placeholder="API Secret" class="w-full bg-[#0b0e11] text-white p-2 text-sm rounded border border-gray-700 focus:border-yellow-500 outline-none">
+                        <input type="text" id="new-key" placeholder="API Key" class="w-full bg-[#0b0e11] text-white p-3 text-sm rounded-lg border border-gray-700 focus:border-yellow-500 outline-none transition-colors">
+                        <input type="password" id="new-secret" placeholder="API Secret" class="w-full bg-[#0b0e11] text-white p-3 text-sm rounded-lg border border-gray-700 focus:border-yellow-500 outline-none transition-colors">
                         
-                        <button onclick="addAccount()" class="w-full bg-yellow-500 text-black font-bold py-2 mt-2 rounded hover:bg-yellow-400 transition text-sm">
-                            <i class="fa-solid fa-plus mr-1"></i> Ajouter
+                        <button onclick="addAccount()" class="w-full bg-gradient-to-r from-[#f0b90b] to-[#f8d33a] text-black font-bold py-3 mt-2 rounded-lg hover:opacity-90 transition transform active:scale-95 text-sm shadow-lg shadow-yellow-500/10">
+                            <i class="fa-solid fa-plus mr-1"></i> ENREGISTRER L'API
                         </button>
-                        <p id="broker-msg" class="text-xs text-center mt-2 hidden"></p>
+                        <p id="broker-msg" class="text-xs text-center mt-3 hidden font-bold"></p>
                     </div>
                 </div>
             </div>
@@ -83,31 +96,40 @@
             <div class="lg:col-span-2">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-bold flex items-center">
-                        <i class="fa-solid fa-bolt mr-2 text-yellow-500"></i> Flux de Signaux IA
+                        <i class="fa-solid fa-bolt mr-2 text-yellow-500"></i> Historique des Signaux
                     </h3>
-                    <span class="text-[10px] text-gray-500 uppercase">Auto-refresh: 10s</span>
+                    <span class="text-[10px] text-gray-500 font-bold bg-gray-800 px-2 py-1 rounded">Mise à jour Auto</span>
                 </div>
                 
-                <div class="card rounded-xl overflow-hidden">
-                    <table class="w-full text-left">
-                        <thead class="bg-black/20 text-gray-400 text-[10px] uppercase tracking-widest">
-                            <tr>
-                                <th class="p-4">Marché</th>
-                                <th class="p-4">Action</th>
-                                <th class="p-4">Prix</th>
-                                <th class="p-4">Confiance</th>
-                                <th class="p-4">Time</th>
-                            </tr>
-                        </thead>
-                        <tbody id="trades-body" class="divide-y divide-gray-800">
+                <div class="card rounded-xl overflow-hidden shadow-lg border border-gray-800">
+                    <div class="overflow-x-auto max-h-[500px]">
+                        <table class="w-full text-left whitespace-nowrap">
+                            <thead class="bg-[#1e2329] sticky top-0 border-b border-gray-800 z-10">
+                                <tr class="text-gray-500 text-[10px] uppercase tracking-widest">
+                                    <th class="p-4 font-bold">Actif</th>
+                                    <th class="p-4 font-bold">Sens</th>
+                                    <th class="p-4 font-bold">Prix d'entrée</th>
+                                    <th class="p-4 font-bold">Confiance IA</th>
+                                    <th class="p-4 font-bold text-right">Heure</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trades-body" class="divide-y divide-gray-800/50">
+                                <tr>
+                                    <td colspan="5" class="p-8 text-center">
+                                        <i class="fa-solid fa-spinner fa-spin text-gray-600 text-xl mb-2"></i>
+                                        <p class="text-gray-500 text-xs uppercase tracking-widest">Synchronisation...</p>
+                                    </td>
+                                </tr>
                             </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
     <script>
+        // --- 1. SÉCURITÉ JWT ---
         const token = localStorage.getItem('token');
         if (!token) {
             window.location.href = '/login';
@@ -118,6 +140,7 @@
             window.location.href = '/login';
         }
 
+        // --- 2. CONFIGURATION BROKER ---
         async function addAccount() {
             const brokerMsg = document.getElementById('broker-msg');
             const payload = {
@@ -127,8 +150,8 @@
             };
             
             if (!payload.key || !payload.secret) {
-                brokerMsg.className = "text-red-500 text-xs text-center mt-2";
-                brokerMsg.innerText = "Veuillez remplir les clés.";
+                brokerMsg.className = "text-red-500 text-xs text-center mt-3 font-bold";
+                brokerMsg.innerText = "Veuillez remplir les clés API.";
                 brokerMsg.classList.remove("hidden");
                 return;
             }
@@ -144,14 +167,17 @@
                 });
 
                 if (res.ok) {
-                    brokerMsg.className = "text-green-500 text-xs text-center mt-2";
-                    brokerMsg.innerText = "Clés enregistrées avec succès !";
+                    brokerMsg.className = "text-green-500 text-xs text-center mt-3 font-bold";
+                    brokerMsg.innerText = "API validée ! Le bot peut démarrer.";
                     brokerMsg.classList.remove("hidden");
                     document.getElementById('new-key').value = '';
                     document.getElementById('new-secret').value = '';
+                    
+                    // On rafraîchit immédiatement les données pour enlever les messages rouges
+                    fetchAccount(); 
                 } else {
-                    brokerMsg.className = "text-red-500 text-xs text-center mt-2";
-                    brokerMsg.innerText = "Erreur d'enregistrement.";
+                    brokerMsg.className = "text-red-500 text-xs text-center mt-3 font-bold";
+                    brokerMsg.innerText = "Erreur de sécurité lors de l'enregistrement.";
                     brokerMsg.classList.remove("hidden");
                 }
             } catch(e) {
@@ -159,56 +185,114 @@
             }
         }
 
+        // --- 3. RÉCUPÉRATION DES STATISTIQUES (RÉELLES) ---
         async function fetchAccount() {
             try {
-                const response = await fetch('/account/info');
-                const data = await response.json();
+                const response = await fetch('/account/info', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 
-                document.getElementById('acc-balance').innerText = `$${data.balance.toLocaleString()}`;
-                document.getElementById('acc-equity').innerText = `$${data.equity.toLocaleString()}`;
+                if (response.status === 401) { logout(); return; } 
+                
+                const data = await response.json();
+                const posContainer = document.getElementById('active-positions');
+                
+                // LOGIQUE MÉTIER : Utilisateur SANS API
+                if (!data.api_configured) {
+                    document.getElementById('api-status-dot').className = "h-2 w-2 rounded-full bg-red-500 mr-2";
+                    document.getElementById('api-status-text').innerText = "Non Connecté";
+                    document.getElementById('api-status-text').classList.replace('text-gray-400', 'text-red-500');
+
+                    document.getElementById('acc-balance').innerHTML = '<span class="text-red-500 text-sm"><i class="fa-solid fa-lock"></i> API REQUISE</span>';
+                    document.getElementById('acc-equity').innerText = "---";
+                    document.getElementById('acc-pnl').innerText = "---";
+                    
+                    posContainer.innerHTML = `
+                        <div class="card p-6 rounded-xl border border-red-500/20 bg-red-500/5 text-center">
+                            <i class="fa-solid fa-triangle-exclamation text-red-500 text-2xl mb-3"></i>
+                            <p class="text-red-500 text-xs font-bold uppercase tracking-widest">En attente du Broker</p>
+                            <p class="text-gray-400 text-[10px] mt-2">Veuillez connecter votre clé API Bybit ou MT5 ci-dessous pour activer les fonctionnalités.</p>
+                        </div>
+                    `;
+                    return; 
+                }
+
+                // LOGIQUE MÉTIER : Utilisateur AVEC API (Affichage des données)
+                document.getElementById('api-status-dot').className = "h-2 w-2 rounded-full bg-green-500 mr-2 shadow-[0_0_8px_rgba(34,197,94,0.8)]";
+                document.getElementById('api-status-text').innerText = "API Sécurisée";
+                document.getElementById('api-status-text').className = "font-bold text-sm text-green-500";
+
+                document.getElementById('acc-balance').innerText = `$${data.balance.toFixed(2)}`;
+                document.getElementById('acc-equity').innerText = `$${data.equity.toFixed(2)}`;
                 
                 const pnlEl = document.getElementById('acc-pnl');
                 pnlEl.innerText = `${data.daily_pnl >= 0 ? '+' : ''}$${data.daily_pnl.toFixed(2)}`;
-                pnlEl.className = `text-xl font-bold mt-1 ${data.daily_pnl >= 0 ? 'text-green-500' : 'text-red-500'}`;
+                pnlEl.className = `text-2xl font-bold mt-1 ${data.daily_pnl > 0 ? 'text-green-500' : (data.daily_pnl < 0 ? 'text-red-500' : 'text-gray-500')}`;
 
-                const posContainer = document.getElementById('active-positions');
                 posContainer.innerHTML = '';
                 if (data.active_positions.length === 0) {
-                    posContainer.innerHTML = '<p class="text-gray-500 text-sm italic">Aucune position...</p>';
-                }
-
-                data.active_positions.forEach(pos => {
-                    posContainer.innerHTML += `
-                        <div class="card p-4 rounded-lg border-l-4 ${pos.pnl >= 0 ? 'border-green-500' : 'border-red-500'}">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <span class="font-bold text-white">${pos.ticker}</span>
-                                    <span class="text-[10px] block text-gray-500 uppercase">${pos.direction}</span>
-                                </div>
-                                <span class="${pos.pnl >= 0 ? 'text-green-400' : 'text-red-400'} font-bold">
-                                    ${pos.pnl >= 0 ? '+' : ''}${pos.pnl.toFixed(2)}
-                                </span>
-                            </div>
-                            <div class="mt-2 text-[10px] text-gray-500">ENTRÉE: ${pos.entry}</div>
+                    posContainer.innerHTML = `
+                        <div class="card p-6 rounded-xl text-center border border-gray-800">
+                            <i class="fa-solid fa-radar text-yellow-500 text-2xl mb-3 opacity-50"></i>
+                            <p class="text-gray-400 text-xs uppercase tracking-widest font-bold">Aucune position en cours</p>
+                            <p class="text-gray-600 text-[10px] mt-1">L'IA analyse activement les marchés...</p>
                         </div>
                     `;
-                });
+                } else {
+                    data.active_positions.forEach(pos => {
+                        posContainer.innerHTML += `
+                            <div class="card p-4 rounded-xl border-l-4 ${pos.pnl >= 0 ? 'border-green-500' : 'border-red-500'} hover:bg-[#252b33] transition-colors">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="font-bold text-white text-lg">${pos.ticker}</span>
+                                        <span class="text-[10px] block font-black uppercase tracking-widest ${pos.direction === 'ACHAT' ? 'text-green-500' : 'text-red-500'}">${pos.direction}</span>
+                                    </div>
+                                    <span class="${pos.pnl >= 0 ? 'text-green-400' : 'text-red-400'} font-bold text-lg">
+                                        ${pos.pnl >= 0 ? '+' : ''}${pos.pnl.toFixed(2)}
+                                    </span>
+                                </div>
+                                <div class="mt-3 flex justify-between border-t border-gray-800 pt-2">
+                                    <span class="text-[10px] text-gray-500 font-bold tracking-widest">ENTRÉE</span>
+                                    <span class="text-[10px] text-white font-mono">${pos.entry}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
             } catch (e) { console.error("Erreur Compte:", e); }
         }
 
+        // --- 4. RÉCUPÉRATION DE L'HISTORIQUE (RÉEL) ---
         async function fetchTrades() {
             try {
-                const response = await fetch('/trades/history');
+                const response = await fetch('/trades/history', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 const trades = await response.json();
                 const tbody = document.getElementById('trades-body');
+                
+                if (trades.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="p-10 text-center">
+                                <div class="inline-block p-4 rounded-full bg-gray-800/50 mb-3">
+                                    <i class="fa-solid fa-clock-rotate-left text-gray-500 text-xl"></i>
+                                </div>
+                                <p class="text-gray-500 text-xs font-bold uppercase tracking-widest">L'historique est vierge</p>
+                                <p class="text-gray-600 text-[10px] mt-1">Les trades validés par le Bot apparaîtront ici.</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
                 tbody.innerHTML = '';
-
                 trades.forEach(trade => {
                     const isBuy = trade.direction === 'ACHAT';
-                    const time = new Date(trade.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    const time = new Date(trade.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
 
                     tbody.innerHTML += `
-                        <tr class="hover:bg-white/5 transition-colors">
+                        <tr class="hover:bg-[#252b33] transition-colors group">
                             <td class="p-4 font-bold text-white">${trade.ticker}</td>
                             <td class="p-4">
                                 <span class="${isBuy ? 'text-green-500 bg-green-500/10' : 'text-red-500 bg-red-500/10'} text-[10px] font-black px-2 py-1 rounded border border-current">
@@ -217,23 +301,24 @@
                             </td>
                             <td class="p-4 font-mono text-gray-400">$${trade.price}</td>
                             <td class="p-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="flex-1 bg-gray-800 rounded-full h-1 max-w-[60px]">
-                                        <div class="bg-yellow-500 h-1 rounded-full" style="width: ${trade.confidence}%"></div>
+                                <div class="flex items-center gap-3">
+                                    <div class="flex-1 bg-gray-800 rounded-full h-1.5 w-16 overflow-hidden">
+                                        <div class="bg-gradient-to-r from-yellow-600 to-yellow-400 h-full rounded-full" style="width: ${trade.confidence}%"></div>
                                     </div>
-                                    <span class="text-[10px] text-gray-500">${trade.confidence.toFixed(1)}%</span>
+                                    <span class="text-xs text-gray-400 font-mono">${trade.confidence.toFixed(1)}%</span>
                                 </div>
                             </td>
-                            <td class="p-4 text-gray-600 text-xs">${time}</td>
+                            <td class="p-4 text-gray-600 text-xs text-right font-mono group-hover:text-gray-400 transition-colors">${time}</td>
                         </tr>
                     `;
                 });
             } catch (e) { console.error("Erreur Signaux:", e); }
         }
 
+        // Lancement initial et boucle de rafraîchissement
         fetchAccount();
         fetchTrades();
-        setInterval(() => { fetchAccount(); fetchTrades(); }, 10000);
+        setInterval(() => { fetchAccount(); fetchTrades(); }, 10000); // Actualisation toutes les 10s
     </script>
 </body>
 </html>
