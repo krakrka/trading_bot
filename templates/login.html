@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion | Nexa Trading Bot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #0b0e11; color: #eaecef; }
+        .login-card { background-color: #1e2329; border: 1px solid #30363d; }
+    </style>
+</head>
+<body class="font-sans antialiased flex items-center justify-center h-screen px-4">
+
+    <div class="login-card p-8 rounded-xl w-full max-w-md shadow-2xl">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-yellow-500 mb-2">
+                <i class="fa-solid fa-robot mr-2"></i>NEXA AI
+            </h1>
+            <p class="text-gray-400 text-sm">Connectez-vous pour accéder à votre Dashboard</p>
+        </div>
+
+        <form id="login-form" class="space-y-5">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Adresse Email</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                        <i class="fa-solid fa-envelope"></i>
+                    </span>
+                    <input type="email" id="email" 
+                        class="w-full bg-[#0b0e11] border border-gray-700 p-3 pl-10 rounded-lg text-white focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none transition" 
+                        placeholder="nom@exemple.com" required>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Mot de passe</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                        <i class="fa-solid fa-lock"></i>
+                    </span>
+                    <input type="password" id="password" 
+                        class="w-full bg-[#0b0e11] border border-gray-700 p-3 pl-10 rounded-lg text-white focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none transition" 
+                        placeholder="••••••••" required>
+                </div>
+            </div>
+
+            <button type="submit" 
+                class="w-full bg-yellow-500 text-black font-black py-3 rounded-lg hover:bg-yellow-400 transform active:scale-95 transition-all duration-200">
+                SE CONNECTER
+            </button>
+        </form>
+
+        <div class="flex items-center my-6">
+            <div class="flex-1 border-t border-gray-800"></div>
+            <span class="px-3 text-gray-600 text-xs uppercase">OU</span>
+            <div class="flex-1 border-t border-gray-800"></div>
+        </div>
+
+        <div class="text-center">
+            <p class="text-gray-400 text-sm">
+                Pas encore de compte ? 
+                <a href="/register" class="text-yellow-500 font-bold hover:underline">S'inscrire gratuitement</a>
+            </p>
+        </div>
+
+        <div id="error-box" class="mt-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg hidden">
+            <p id="error-msg" class="text-red-500 text-xs text-center font-bold"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            
+            // On prépare les données pour l'OAuth2 Password Flow (Format Form Data)
+            const formData = new FormData();
+            formData.append('username', document.getElementById('email').value);
+            formData.append('password', document.getElementById('password').value);
+
+            const errorBox = document.getElementById('error-box');
+            const errorMsg = document.getElementById('error-msg');
+
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Succès : On stocke le Token JWT dans le navigateur
+                    localStorage.setItem('token', data.access_token);
+                    // On redirige vers le dashboard
+                    window.location.href = '/dashboard';
+                } else {
+                    // Erreur d'authentification
+                    errorMsg.innerText = data.detail || "Email ou mot de passe incorrect.";
+                    errorBox.classList.remove('hidden');
+                }
+            } catch (err) {
+                errorMsg.innerText = "Le serveur est injoignable.";
+                errorBox.classList.remove('hidden');
+            }
+        };
+
+        // Supprimer le message d'erreur dès que l'utilisateur retape
+        document.querySelectorAll('input').forEach(input => {
+            input.oninput = () => document.getElementById('error-box').classList.add('hidden');
+        });
+    </script>
+
+</body>
+</html>

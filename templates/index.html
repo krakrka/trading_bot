@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Trading | AI Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #0b0e11; color: #eaecef; }
+        .card { background-color: #1e2329; border: 1px solid #30363d; }
+        .gradient-text { background: linear-gradient(90deg, #f0b90b, #f8d33a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .status-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body class="font-sans antialiased">
+    <nav class="border-b border-gray-800 p-4 flex justify-between items-center px-8">
+        <h1 class="text-2xl font-bold gradient-text"><i class="fa-solid fa-robot mr-2"></i>NEXA AI BOT</h1>
+        <div class="flex items-center gap-6">
+            <div id="status" class="flex items-center text-sm text-green-500">
+                <span class="relative flex h-3 w-3 mr-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                </span>
+                Moteur de trading actif
+            </div>
+            <button onclick="logout()" class="text-gray-400 hover:text-white text-sm"><i class="fa-solid fa-sign-out-alt"></i> Déconnexion</button>
+        </div>
+    </nav>
+
+    <main class="p-8 max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="card p-4 rounded-lg">
+                <span class="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Broker Status</span>
+                <div class="flex items-center mt-1">
+                    <div class="h-2 w-2 rounded-full bg-green-500 mr-2"></div>
+                    <span id="acc-status" class="font-bold text-sm">Connecté</span>
+                </div>
+            </div>
+            <div class="card p-4 rounded-lg">
+                <span class="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Solde Total</span>
+                <h4 id="acc-balance" class="text-xl font-bold mt-1 text-white">$0.00</h4>
+            </div>
+            <div class="card p-4 rounded-lg">
+                <span class="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Equity (Live)</span>
+                <h4 id="acc-equity" class="text-xl font-bold mt-1 text-yellow-500">$0.00</h4>
+            </div>
+            <div class="card p-4 rounded-lg">
+                <span class="text-gray-500 text-[10px] uppercase font-bold tracking-wider">PnL Journalier</span>
+                <h4 id="acc-pnl" class="text-xl font-bold mt-1">+$0.00</h4>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1">
+                <h3 class="text-lg font-bold mb-4 flex items-center">
+                    <i class="fa-solid fa-layer-group mr-2 text-yellow-500"></i> Positions Actives
+                </h3>
+                <div id="active-positions" class="space-y-3">
+                    <p class="text-gray-500 text-sm italic">Aucune position ouverte...</p>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold flex items-center">
+                        <i class="fa-solid fa-bolt mr-2 text-yellow-500"></i> Flux de Signaux Hybrides
+                    </h3>
+                    <span class="text-[10px] text-gray-500 uppercase">Auto-refresh: 10s</span>
+                </div>
+                
+                <div class="card rounded-xl overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-black/20 text-gray-400 text-[10px] uppercase tracking-widest">
+                            <tr>
+                                <th class="p-4">Marché</th>
+                                <th class="p-4">Action</th>
+                                <th class="p-4">Prix</th>
+                                <th class="p-4">Confiance</th>
+                                <th class="p-4">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trades-body" class="divide-y divide-gray-800">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- SÉCURITÉ : Vérification du Token ---
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+        }
+
+        // --- DATA : Récupération des infos du compte ---
+        async function fetchAccount() {
+            try {
+                const response = await fetch('/account/info');
+                const data = await response.json();
+                
+                document.getElementById('acc-balance').innerText = `$${data.balance.toLocaleString()}`;
+                document.getElementById('acc-equity').innerText = `$${data.equity.toLocaleString()}`;
+                
+                const pnlEl = document.getElementById('acc-pnl');
+                pnlEl.innerText = `${data.daily_pnl >= 0 ? '+' : ''}$${data.daily_pnl.toFixed(2)}`;
+                pnlEl.className = `text-xl font-bold mt-1 ${data.daily_pnl >= 0 ? 'text-green-500' : 'text-red-500'}`;
+
+                const posContainer = document.getElementById('active-positions');
+                posContainer.innerHTML = '';
+                
+                if (data.active_positions.length === 0) {
+                    posContainer.innerHTML = '<p class="text-gray-500 text-sm italic">Aucune position...</p>';
+                }
+
+                data.active_positions.forEach(pos => {
+                    posContainer.innerHTML += `
+                        <div class="card p-4 rounded-lg border-l-4 ${pos.pnl >= 0 ? 'border-green-500' : 'border-red-500'}">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="font-bold text-white">${pos.ticker}</span>
+                                    <span class="text-[10px] block text-gray-500 uppercase">${pos.direction}</span>
+                                </div>
+                                <span class="${pos.pnl >= 0 ? 'text-green-400' : 'text-red-400'} font-bold">
+                                    ${pos.pnl >= 0 ? '+' : ''}${pos.pnl.toFixed(2)}
+                                </span>
+                            </div>
+                            <div class="mt-2 text-[10px] text-gray-500">ENTRÉE: ${pos.entry}</div>
+                        </div>
+                    `;
+                });
+            } catch (e) { console.error("Erreur Compte:", e); }
+        }
+
+        // --- DATA : Récupération des signaux ---
+        async function fetchTrades() {
+            try {
+                const response = await fetch('/trades/history');
+                const trades = await response.json();
+                const tbody = document.getElementById('trades-body');
+                tbody.innerHTML = '';
+
+                trades.forEach(trade => {
+                    const isBuy = trade.direction === 'ACHAT';
+                    const time = new Date(trade.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="p-4 font-bold text-white">${trade.ticker}</td>
+                            <td class="p-4">
+                                <span class="${isBuy ? 'text-green-500 bg-green-500/10' : 'text-red-500 bg-red-500/10'} text-[10px] font-black px-2 py-1 rounded border border-current">
+                                    ${trade.direction}
+                                </span>
+                            </td>
+                            <td class="p-4 font-mono text-gray-400">$${trade.price}</td>
+                            <td class="p-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-1 bg-gray-800 rounded-full h-1 max-w-[60px]">
+                                        <div class="bg-yellow-500 h-1 rounded-full" style="width: ${trade.confidence}%"></div>
+                                    </div>
+                                    <span class="text-[10px] text-gray-500">${trade.confidence.toFixed(1)}%</span>
+                                </div>
+                            </td>
+                            <td class="p-4 text-gray-600 text-xs">${time}</td>
+                        </tr>
+                    `;
+                });
+            } catch (e) { console.error("Erreur Signaux:", e); }
+        }
+
+        // Initialisation
+        fetchAccount();
+        fetchTrades();
+        
+        // Rafraîchissement automatique
+        setInterval(() => {
+            fetchAccount();
+            fetchTrades();
+        }, 10000);
+    </script>
+</body>
+</html>
