@@ -1,18 +1,10 @@
-# --- DATA & ML PURE ---
-pandas
-yfinance
-scikit-learn
-joblib
-psycopg2-binary
-python-dotenv
-requests
-
-# --- BACKEND SAAS ---
 fastapi
 uvicorn
-sqlalchemy
-
-# --- AGENT MACRO & NLP (Gratuit) ---
-langchain
-langchain-google-genai  # <--- Le connecteur pour l'API gratuite Gemini
-chromadb
+jinja2
+pydantic[email]
+passlib[bcrypt]
+bcrypt==4.0.1
+python-jose[cryptography]
+python-multipart
+psycopg2-binary
+pandas
