@@ -18,11 +18,12 @@ def get_real_market_price(ticker):
         return 100.00
 
 def get_broker_keys():
-    """Va chercher la clé API Bybit du premier utilisateur dans la DB"""
+    """Va chercher la DERNIÈRE clé API Bybit de l'utilisateur"""
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute("SELECT api_key, api_secret FROM broker_accounts WHERE broker_name LIKE 'BYBIT%' LIMIT 1")
+        # 🟢 L'ajout magique : ORDER BY id DESC pour prendre la plus récente !
+        cur.execute("SELECT api_key, api_secret FROM broker_accounts WHERE broker_name LIKE 'BYBIT%' ORDER BY created_at DESC LIMIT 1")
         keys = cur.fetchone()
         conn.close()
         if keys:
