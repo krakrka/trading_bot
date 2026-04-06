@@ -9,3 +9,4 @@ python-multipart
 psycopg2-binary
 pandas
 python-dotenv
+cctx
