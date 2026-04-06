@@ -165,9 +165,26 @@ def get_account_info(current_user: dict = Depends(get_current_user)):
 
 @app.get("/trades/history")
 def get_trades_history(current_user: dict = Depends(get_current_user)):
-    """Récupère l'historique des trades. Vide pour l'instant."""
-    # Tant que le bot n'a pas enregistré de trades liés à cet utilisateur, on renvoie vide.
-    return []
+    """Récupère l'historique RÉEL des trades depuis Neon."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        # On récupère les 10 derniers signaux générés
+        cur.execute("""
+            SELECT ticker, direction, entry_price, confidence, timestamp 
+            FROM trades_history 
+            ORDER BY timestamp DESC LIMIT 10
+        """)
+        trades = cur.fetchall()
+        return [
+            {"ticker": t[0], "direction": t[1], "price": float(t[2]), "confidence": float(t[3]), "time": t[4]} 
+            for t in trades
+        ]
+    except Exception as e:
+        # Si la table trades_history n'existe pas encore ou qu'il y a une erreur
+        return []
+    finally:
+        conn.close()
 
 if __name__ == "__main__":
     import uvicorn
